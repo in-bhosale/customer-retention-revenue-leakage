@@ -1,103 +1,154 @@
-# Customer Retention & Revenue Leakage Analysis
+# Customer Retention & Revenue Leakage Analysis (SQL + Power BI)
 
 ## 📌 Project Overview
-This project analyzes **customer retention, revenue trends, and revenue leakage due to returns** using a real-world retail dataset.  
-The goal is to move beyond topline revenue and uncover **why revenue fluctuates, where customers churn, and how returns impact profitability**.
+This project analyzes **customer retention, revenue trends, and revenue leakage due to returns** using a real-world online retail dataset.
 
-The project follows a **production-style analytics pipeline**:
-Raw data → Cleaned SQL views → Analytical SQL outputs → Power BI dashboard.
+Instead of focusing only on topline revenue, the analysis answers deeper business questions:
+- Why does revenue fluctuate?
+- How quickly do customers churn?
+- Is growth driven by new or repeat customers?
+- How much revenue is silently lost through returns?
+
+The project follows a **production-style analytics pipeline**:  
+**Raw Data → SQL Fact Views → Analytical Aggregations → Power BI Dashboards**
 
 ---
 
 ## 🛠 Tech Stack
 - **Database:** MySQL  
-- **Querying & Modeling:** SQL (CTEs, Window Functions, Views)  
+- **Querying & Modeling:** SQL (Views, CTEs, Window Functions)  
 - **Visualization:** Power BI  
-- **Data Source:** Online Retail / Superstore-style transactional dataset
+- **Data Source:** Public Online Retail transactional dataset (`online_retail.csv`)
 
 ---
 
-## 📂 Repository Structure
+## 📂 Data Architecture & Design
+
+### 🔹 Raw Data Layer
+- Raw CSV data is ingested into MySQL **without modification**
+- All columns remain **TEXT**, preserving source fidelity
+- Table: `online_retail`
+
+> This mirrors real-world ingestion pipelines where raw data is never mutated.
 
 ---
 
-## 🔹 Key Business Questions Answered
+### 🔹 Fact Layer (Business Events)
+Clean, typed, and business-meaningful fact views are created from raw data:
+
+| View Name | Description |
+|----------|-------------|
+| `fact_sales` | Completed sales transactions only |
+| `fact_returns` | Returns / cancellations modeled as a **separate fact** |
+
+**Key design decisions:**
+- Sales and returns are **never mixed**
+- Revenue is calculated in SQL
+- `DATETIME` is preserved in fact tables for future extensibility
+- All cleaning and casting happens in views, not raw tables
+
+---
+
+### 🔹 Aggregated Facts & Dimensions
+
+| View Name | Purpose |
+|----------|---------|
+| `fact_invoice_summary` | Invoice-level metrics (revenue, quantity, products) |
+| `dim_customer_metrics` | Customer lifetime metrics (orders, revenue, tenure) |
+
+These views form the **analytical foundation** for KPIs and behavioral analysis.
+
+---
+
+### 🔹 Power BI Optimized Views
+Power BI connects **only** to pre-aggregated, dashboard-ready views:
+
+| View Name | Business Purpose |
+|----------|------------------|
+| `bi_kpi_overview` | Executive KPIs (Revenue, Customers, Orders, AOV) |
+| `bi_monthly_revenue` | Monthly revenue & MoM growth |
+| `bi_new_vs_repeat_revenue` | Revenue split by customer type |
+| `bi_customer_retention` | Customer retention by cohort age |
+| `bi_revenue_retention` | Revenue retention (value decay over time) |
+| `bi_returns_overview` | Total returns & return rate |
+| `bi_high_return_customers` | Customers with abnormal return behavior |
+
+> All business logic lives in SQL. Power BI is used **only for visualization and storytelling**.
+
+---
+
+## 🔍 Key Business Questions Answered
 - How healthy is the business beyond topline revenue?
-- How many customers churn after their first purchase?
-- Is growth driven by new customers or repeat customers?
+- What percentage of customers churn after their first purchase?
+- Is growth driven by acquisition or retention?
 - How does customer revenue decay over time?
-- How much revenue is lost due to returns and cancellations?
+- How much revenue is lost due to returns?
 - Are returns concentrated among specific customers?
-
----
-
-## 🔹 SQL Architecture & Design
-- **Raw data left untouched** (CSV-style TEXT columns)
-- **Clean analytical views** created for:
-  - Completed sales (`online_retail_clean`)
-  - Returns & cancellations (`online_retail_returns`)
-- Separate **invoice-level** and **customer-level** summary views
-- Cohort and retention logic handled **entirely in SQL**
-- Returns modeled as a **separate fact**, not mixed with sales
-
-This design mirrors real-world analytics best practices.
 
 ---
 
 ## 📊 Core Analyses Performed
 
-### 1️⃣ Business KPIs
-- Total Revenue, Customers, Orders, Average Order Value
+### 1️⃣ Business Health (KPIs)
+- Total Revenue
+- Total Customers
+- Total Orders
+- Average Order Value (AOV)
 
 ### 2️⃣ Customer Behavior
 - Order frequency distribution
-- One-time vs repeat buyers
+- One-time vs repeat customers
+- Customer lifetime value patterns
 
 ### 3️⃣ Retention & Cohort Analysis
 - Customer retention by cohort age
-- Revenue retention curve (value decay over time)
+- Revenue retention curve (value decay)
+- Identification of early churn risk
 
 ### 4️⃣ Revenue Trends
-- Monthly revenue
+- Monthly revenue trends
 - Month-over-Month (MoM) growth using window functions
+- Seasonality and volatility analysis
 
-### 5️⃣ Revenue Leakage (Returns Analysis)
+### 5️⃣ Revenue Leakage (Returns)
 - Total return value
 - Return rate (% of revenue lost)
-- High-risk customers with abnormal return behavior
+- High-risk customers with excessive returns
 
 ---
 
-## 📈 Power BI Dashboard
-The Power BI dashboard focuses on **executive storytelling**, not raw data.
+## 📈 Power BI Dashboard (Executive Storytelling)
 
-### Key visuals include:
-- KPI summary (Revenue, Customers, AOV, Return Rate)
-- Monthly Revenue & MoM Growth
+The dashboard is designed for **decision-makers**, not raw exploration.
+
+### 🔹 Key Visuals
+- KPI cards (Revenue, Customers, AOV, Return Rate)
+- Monthly Revenue & MoM Growth (Line charts)
 - New vs Repeat Revenue Contribution
 - Customer Retention Curve
-- Revenue Retention Curve (Cohorts)
+- Revenue Retention Curve
 - Top Customers by Return Value
 
-All business logic remains in SQL; Power BI is used purely for visualization.
+> The dashboard highlights that this is a **retention and post-purchase experience problem**, not an acquisition problem.
 
 ---
 
 ## 💡 Key Insights
 - Over **75% of customers churn after their first month**
-- Revenue is **heavily dependent on repeat customers**
-- Revenue shows strong **seasonality and volatility**
-- Customer revenue **decays significantly over time**
-- ~**6% of total revenue is lost due to returns**
-- Returns are **highly concentrated among a small group of customers**
+- Revenue is heavily dependent on repeat customers
+- Customer revenue decays sharply over time
+- Revenue shows strong seasonality and volatility
+- Approximately **6% of total revenue is lost due to returns**
+- Returns are highly concentrated among a small group of customers
 
 **Conclusion:**  
-This is primarily a **retention and post-purchase experience problem**, not an acquisition problem.
+Improving **customer retention and post-purchase experience** will have a significantly higher ROI than focusing purely on customer acquisition.
 
 ---
 
 ## 🧠 Skills Demonstrated
 - SQL data cleaning & transformation
+- Fact vs dimension modeling
 - CTEs and window functions
 - Cohort & retention analysis
 - Revenue leakage modeling
@@ -107,15 +158,16 @@ This is primarily a **retention and post-purchase experience problem**, not an a
 
 ---
 
-## 🚀 Future Improvements
+## 🚀 Future Enhancements
 - Product-level return analysis
-- Customer segmentation (RFM)
+- RFM customer segmentation
 - Predictive churn modeling
-- Integration with marketing or logistics data
+- Marketing or logistics data integration
+- Migration to a full warehouse schema (if required)
 
 ---
 
 ## 👤 Author
 **Indranil Bhosale**  
-Aspiring Data Analyst | SQL • Power BI • Analytics
-
+Aspiring Data Analyst  
+SQL • Power BI • Analytics
