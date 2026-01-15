@@ -1,4 +1,5 @@
-# Customer Retention & Revenue Leakage Analysis (SQL + Power BI)
+# Customer Retention & Revenue Leakage Analysis  
+(SQL + Power BI)
 
 ## 📌 Project Overview
 This project analyzes **customer retention, revenue trends, and revenue leakage due to returns** using a real-world online retail dataset.
@@ -25,27 +26,26 @@ The project follows a **production-style analytics pipeline**:
 ## 📂 Data Architecture & Design
 
 ### 🔹 Raw Data Layer
-- Raw CSV data is ingested into MySQL **without modification**
-- All columns remain **TEXT**, preserving source fidelity
+- Raw CSV data ingested into MySQL **without modification**
+- All columns stored as **TEXT** to preserve source fidelity
 - Table: `online_retail`
 
-> This mirrors real-world ingestion pipelines where raw data is never mutated.
+> Mirrors real-world ingestion pipelines where raw data is never mutated.
 
 ---
 
 ### 🔹 Fact Layer (Business Events)
-Clean, typed, and business-meaningful fact views are created from raw data:
 
 | View Name | Description |
-|----------|-------------|
+|---------|-------------|
 | `fact_sales` | Completed sales transactions only |
 | `fact_returns` | Returns / cancellations modeled as a **separate fact** |
 
 **Key design decisions:**
 - Sales and returns are **never mixed**
-- Revenue is calculated in SQL
-- `DATETIME` is preserved in fact tables for future extensibility
-- All cleaning and casting happens in views, not raw tables
+- Revenue calculated in SQL
+- All cleaning, casting, and logic handled in views
+- Raw data remains untouched
 
 ---
 
@@ -56,24 +56,24 @@ Clean, typed, and business-meaningful fact views are created from raw data:
 | `fact_invoice_summary` | Invoice-level metrics (revenue, quantity, products) |
 | `dim_customer_metrics` | Customer lifetime metrics (orders, revenue, tenure) |
 
-These views form the **analytical foundation** for KPIs and behavioral analysis.
+These views form the **analytical backbone**.
 
 ---
 
 ### 🔹 Power BI Optimized Views
-Power BI connects **only** to pre-aggregated, dashboard-ready views:
 
 | View Name | Business Purpose |
 |----------|------------------|
-| `bi_kpi_overview` | Executive KPIs (Revenue, Customers, Orders, AOV) |
+| `bi_kpi_overview` | Executive KPIs |
 | `bi_monthly_revenue` | Monthly revenue & MoM growth |
-| `bi_new_vs_repeat_revenue` | Revenue split by customer type |
+| `bi_new_vs_repeat_revenue` | New vs repeat revenue |
 | `bi_customer_retention` | Customer retention by cohort age |
-| `bi_revenue_retention` | Revenue retention (value decay over time) |
-| `bi_returns_overview` | Total returns & return rate |
-| `bi_high_return_customers` | Customers with abnormal return behavior |
+| `bi_revenue_retention` | Revenue retention (value decay) |
+| `bi_returns_overview` | Returns & return rate |
+| `bi_high_return_customers` | High-risk return customers |
 
-> All business logic lives in SQL. Power BI is used **only for visualization and storytelling**.
+> All business logic lives in SQL.  
+> Power BI is used **only for visualization and storytelling**.
 
 ---
 
@@ -96,14 +96,14 @@ Power BI connects **only** to pre-aggregated, dashboard-ready views:
 - Average Order Value (AOV)
 
 ### 2️⃣ Customer Behavior
-- Order frequency distribution
 - One-time vs repeat customers
-- Customer lifetime value patterns
+- Order frequency patterns
+- Customer lifetime metrics
 
 ### 3️⃣ Retention & Cohort Analysis
 - Customer retention by cohort age
 - Revenue retention curve (value decay)
-- Identification of early churn risk
+- Early churn identification
 
 ### 4️⃣ Revenue Trends
 - Monthly revenue trends
@@ -119,30 +119,45 @@ Power BI connects **only** to pre-aggregated, dashboard-ready views:
 
 ## 📈 Power BI Dashboard (Executive Storytelling)
 
-The dashboard is designed for **decision-makers**, not raw exploration.
+### 🖥 Dashboard Pages
 
-### 🔹 Key Visuals
-- KPI cards (Revenue, Customers, AOV, Return Rate)
-- Monthly Revenue & MoM Growth (Line charts)
-- New vs Repeat Revenue Contribution
-- Customer Retention Curve
-- Revenue Retention Curve
-- Top Customers by Return Value
+#### 1️⃣ Executive Overview
+![Executive Overview](dashboard_screenshots/01_executive_overview.jpg)
 
-> The dashboard highlights that this is a **retention and post-purchase experience problem**, not an acquisition problem.
+- Revenue, Customers, Orders, AOV
+- Monthly Revenue Trend & Growth Momentum
+- Key insight: **Revenue volatility is driven by retention, not acquisition**
+
+---
+
+#### 2️⃣ Retention & Growth Quality
+![Retention & Growth](dashboard_screenshots/02_retention_growth_quality.jpg)
+
+- Customer retention curve
+- Revenue retention (value decay)
+- New vs Repeat customer revenue contribution
+
+---
+
+#### 3️⃣ Revenue Leakage (Returns)
+![Revenue Leakage](dashboard_screenshots/03_revenue_leakage_returns.jpg)
+
+- Total return value & return rate
+- High-risk return customers
+- Concentration of revenue leakage
 
 ---
 
 ## 💡 Key Insights
 - Over **75% of customers churn after their first month**
-- Revenue is heavily dependent on repeat customers
+- Revenue depends heavily on repeat customers
 - Customer revenue decays sharply over time
-- Revenue shows strong seasonality and volatility
+- Revenue shows volatility driven by retention quality
 - Approximately **6% of total revenue is lost due to returns**
 - Returns are highly concentrated among a small group of customers
 
 **Conclusion:**  
-Improving **customer retention and post-purchase experience** will have a significantly higher ROI than focusing purely on customer acquisition.
+Improving **customer retention and post-purchase experience** offers a significantly higher ROI than focusing solely on acquisition.
 
 ---
 
@@ -153,7 +168,7 @@ Improving **customer retention and post-purchase experience** will have a signif
 - Cohort & retention analysis
 - Revenue leakage modeling
 - Analytical data modeling
-- Power BI dashboard design
+- Power BI executive dashboards
 - Business-first data storytelling
 
 ---
@@ -163,7 +178,7 @@ Improving **customer retention and post-purchase experience** will have a signif
 - RFM customer segmentation
 - Predictive churn modeling
 - Marketing or logistics data integration
-- Migration to a full warehouse schema (if required)
+- Migration to full warehouse schema (if required)
 
 ---
 
